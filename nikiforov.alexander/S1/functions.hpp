@@ -8,19 +8,16 @@
 namespace nikiforov
 {
   template < typename T >
-  using list_t = List< std::pair< std::string, List< T > > >;
-
-  template < typename T >
   void input_(std::istream& input, List< std::pair< std::string, List< T > > >& seqsPair);
 
   template < typename T >
-  void outputName_(typename list_t< T >::Iterator iterSeqsPair, list_t< T >& seqsPair, size_t& maxSize);
+  void outputName_(List< std::pair< std::string, List< T > > >& seqsPair, size_t& maxSize);
 
   template < typename T >
   void outputSeqs_(List< std::pair< std::string, List< T > > >& seqsPair, List< T >& listSumm, size_t maxSize);
 
   template < typename T >
-  void outputSumm_(List< T >& listSumm, size_t maxSize);
+  void outputSumm_(List< T >& listSumm);
 
   size_t max(const size_t first_param, const size_t second_param);
 }
@@ -55,91 +52,86 @@ void nikiforov::input_(std::istream& input, List< std::pair< std::string, List< 
 }
 
 template< typename T >
-void nikiforov::outputName_(typename list_t< T >::Iterator iterSeqsPair, list_t< T >& seqsPair, size_t& maxSize)
+void nikiforov::outputName_(List< std::pair< std::string, List< T > > >& seqsPair, size_t& maxSize)
 {
-  seqsPair.advance(iterSeqsPair, 2);
-  size_t count = 0;
-  if (count == 1)
+  List< std::pair< std::string, List< unsigned long long > > >::Iterator iterSeqsPair = seqsPair.begin();
+  size_t countNames = seqsPair.getSize();
+
+  for (iterSeqsPair = seqsPair.begin(); iterSeqsPair != seqsPair.end(); ++iterSeqsPair)
   {
-    std::cout << iterSeqsPair->first << "\n";
+    if (countNames == 1)
+    {
+      std::cout << iterSeqsPair->first << "\n";
+    }
+    else
+    {
+      std::cout << iterSeqsPair->first << " ";
+    }
+    maxSize = max(maxSize, iterSeqsPair->second.getSize());
+    countNames--;
   }
-  else
-  {
-    std::cout << iterSeqsPair->first << " ";
-  }
-  maxSize = max(maxSize, iterSeqsPair->second.getSize());
 }
 
 template< typename T >
 void nikiforov::outputSeqs_(List< std::pair< std::string, List< T > > >& seqsPair, List< T >& listSumm, size_t maxSize)
 {
-  if (maxSize != 0)
-  {
-    List< std::pair< std::string, List< unsigned long long > > >::ConstIterator iterSeqsPair = seqsPair.cbegin();
-    List< unsigned long long >::ConstIterator iterList = (*iterSeqsPair).second.cbegin();
-    List< unsigned long long >::ConstIterator iterListEnd = (*iterSeqsPair).second.cend();
-    size_t countInSeq = 0;
-    unsigned long long summ = 0;
-    bool firstElem = false;
-    bool overflow = false;
+  List< std::pair< std::string, List< unsigned long long > > >::ConstIterator iterSeqsPair = seqsPair.cbegin();
+  List< unsigned long long >::ConstIterator iterList = (*iterSeqsPair).second.cbegin();
+  List< unsigned long long >::ConstIterator iterListEnd = (*iterSeqsPair).second.cend();
+  size_t countInSeq = 0;
+  unsigned long long summ = 0;
+  bool firstElem = false;
+  bool overflow = false;
 
-    while (countInSeq < maxSize)
+  while (countInSeq < maxSize)
+  {
+    firstElem = false;
+    for (iterSeqsPair = seqsPair.cbegin(); iterSeqsPair != seqsPair.cend(); ++iterSeqsPair)
     {
-      firstElem = false;
-      for (iterSeqsPair = seqsPair.cbegin(); iterSeqsPair != seqsPair.cend(); ++iterSeqsPair)
+      iterList = (*iterSeqsPair).second.begin();
+      for (size_t i = 0; i < countInSeq; i++)
       {
-        iterList = (*iterSeqsPair).second.begin();
-        for (size_t i = 0; i < countInSeq; i++)
-        {
-          if (iterList != iterListEnd)
-          {
-            iterList++;
-          }
-        }
         if (iterList != iterListEnd)
         {
-          firstElem ? std::cout << " " << *iterList : std::cout << *iterList;
-          firstElem = true;
-          if ((std::numeric_limits<unsigned long long>::max() - summ) > *iterList)
-          {
-            summ += *iterList;
-          }
-          else
-          {
-            overflow = true;
-          }
+          iterList++;
         }
       }
-      std::cout << "\n";
-      countInSeq++;
-      listSumm.push_back(summ);
-      summ = 0;
+      if (iterList != iterListEnd)
+      {
+        firstElem ? std::cout << " " << *iterList : std::cout << *iterList;
+        firstElem = true;
+        if ((std::numeric_limits< unsigned long long >::max() - summ) > *iterList)
+        {
+          summ += *iterList;
+        }
+        else
+        {
+          overflow = true;
+        }
+      }
     }
-    if (overflow)
-    {
-      throw std::overflow_error("Error: overflow!");
-    }
+    std::cout << "\n";
+    countInSeq++;
+    listSumm.push_back(summ);
+    summ = 0;
+  }
+  if (overflow)
+  {
+    throw std::overflow_error("Error: overflow!");
   }
 }
 
 template< typename T >
-void nikiforov::outputSumm_(List< T >& listSumm, size_t maxSize)
+void nikiforov::outputSumm_(List< T >& listSumm)
 {
-  if (maxSize != 0)
+  List< unsigned long long >::Iterator iterListSummEnd = listSumm.end();
+  size_t count = 0;
+  for (List< unsigned long long >::Iterator iterListSumm = listSumm.begin(); iterListSumm != iterListSummEnd; ++iterListSumm)
   {
-    List< unsigned long long >::Iterator iterListSummEnd = listSumm.end();
-    size_t count = 0;
-    for (List< unsigned long long >::Iterator iterListSumm = listSumm.begin(); iterListSumm != iterListSummEnd; ++iterListSumm)
-    {
-      count++;
-      listSumm.getSize() == count ? std::cout << *iterListSumm : std::cout << *iterListSumm << " ";
-    }
-    std::cout << "\n";
+    count++;
+    listSumm.getSize() == count ? std::cout << *iterListSumm : std::cout << *iterListSumm << " ";
   }
-  else
-  {
-    std::cout << 0 << "\n";
-  }
+  std::cout << "\n";
 }
 
 size_t nikiforov::max(const size_t first_param, const size_t second_param)

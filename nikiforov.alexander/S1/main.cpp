@@ -4,22 +4,13 @@ int main()
 {
   using namespace nikiforov;
 
-  using list_l = List< std::pair< std::string, List< unsigned long long > > >;
-  using list_ull = List< unsigned long long >;
-
-  list_l seqsPair;
-  list_ull listSumm;
+  List< std::pair< std::string, List< unsigned long long > > > seqsPair;
+  List< unsigned long long > listSumm;
   size_t maxSize = 0;
   try
   {
     input_(std::cin, seqsPair);
-    List< unsigned long long >::ConstIterator iterList;
-    for (list_l::ConstIterator iterSeqsPair = seqsPair.cbegin(); iterSeqsPair != seqsPair.cend(); ++iterSeqsPair)
-    {
-      outputName_(iterSeqsPair, seqsPair, maxSize);
-    }
-
-    
+    outputName_(seqsPair, maxSize);
     outputSeqs_(seqsPair, listSumm, maxSize);
     outputSumm_(listSumm, maxSize);
   }
