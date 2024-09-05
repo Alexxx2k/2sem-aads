@@ -8,10 +8,13 @@
 namespace nikiforov
 {
   template < typename T >
+  using list_t = List< std::pair< std::string, List< T > > >;
+
+  template < typename T >
   void input_(std::istream& input, List< std::pair< std::string, List< T > > >& seqsPair);
 
   template < typename T >
-  void outputName_(List< std::pair< std::string, List< T > > >& seqsPair, size_t& maxSize);
+  void outputName_(typename list_t< T >::Iterator iterSeqsPair, list_t< T >& seqsPair, size_t& maxSize);
 
   template < typename T >
   void outputSeqs_(List< std::pair< std::string, List< T > > >& seqsPair, List< T >& listSumm, size_t maxSize);
@@ -52,24 +55,19 @@ void nikiforov::input_(std::istream& input, List< std::pair< std::string, List< 
 }
 
 template< typename T >
-void nikiforov::outputName_(List< std::pair< std::string, List< T > > >& seqsPair, size_t& maxSize)
+void nikiforov::outputName_(typename list_t< T >::Iterator iterSeqsPair, list_t< T >& seqsPair, size_t& maxSize)
 {
-  List< std::pair< std::string, List< unsigned long long > > >::Iterator iterSeqsPair = seqsPair.begin();
-  size_t countNames = seqsPair.getSize();
-
-  for (iterSeqsPair = seqsPair.begin(); iterSeqsPair != seqsPair.end(); ++iterSeqsPair)
+  seqsPair.advance(iterSeqsPair, 2);
+  size_t count = 0;
+  if (count == 1)
   {
-    if (countNames == 1)
-    {
-      std::cout << iterSeqsPair->first << "\n";
-    }
-    else
-    {
-      std::cout << iterSeqsPair->first << " ";
-    }
-    maxSize = max(maxSize, iterSeqsPair->second.getSize());
-    countNames--;
+    std::cout << iterSeqsPair->first << "\n";
   }
+  else
+  {
+    std::cout << iterSeqsPair->first << " ";
+  }
+  maxSize = max(maxSize, iterSeqsPair->second.getSize());
 }
 
 template< typename T >
